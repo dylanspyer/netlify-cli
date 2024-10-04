@@ -328,3 +328,21 @@ export async function withSiteBuilder<T>(
     if (builder) await builder.cleanup()
   }
 }
+
+export async function withTwoSiteBuilders<T>(
+  taskContext: TaskContext,
+  testHandler: (builder1: SiteBuilder, builder2: SiteBuilder) => Promise<T>,
+): Promise<T> {
+  let builder1: SiteBuilder | undefined
+  let builder2: SiteBuilder | undefined
+  try {
+    builder1 = createSiteBuilder({ siteName: 'site1' })
+    builder2 = createSiteBuilder({ siteName: 'site2' })
+
+    return await testHandler(builder1, builder2)
+  } finally {
+    if (builder1) await builder1.cleanup()
+    if (builder2) await builder2.cleanup()
+  }
+  console.log('Two Sites')
+}

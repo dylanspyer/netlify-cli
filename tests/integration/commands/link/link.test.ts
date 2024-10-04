@@ -6,7 +6,7 @@ import { describe, expect, test } from 'vitest'
 import { isFileAsync } from '../../../../src/lib/fs.js'
 import { callCli } from '../../utils/call-cli.js'
 import { getCLIOptions, withMockApi } from '../../utils/mock-api.js'
-import { withSiteBuilder } from '../../utils/site-builder.ts'
+import { withSiteBuilder, withTwoSiteBuilders } from '../../utils/site-builder.ts'
 
 describe('link command', () => {
   test('should create gitignore in repository root when is root', async (t) => {
@@ -37,6 +37,9 @@ describe('link command', () => {
           async ({ apiUrl }) => {
             const options = getCLIOptions({ builder, apiUrl })
             await callCli(['link'], { ...options, cwd: join(builder.directory, projectPath) })
+            // await callCli(['link', {}])
+
+            // ntl link --name site2
 
             expect(await isFileAsync(join(builder.directory, '.gitignore'))).toBe(true)
           },
@@ -45,4 +48,25 @@ describe('link command', () => {
       })
     },
   )
+
+  test.only('should prefer exact matching site name if exists', async (t) => {
+    console.log(t.task.name)
+    await withTwoSiteBuilders(t, async (builder1, builder2) => {
+      console.log(builder1)
+      console.log(builder2)
+
+      // expect(builder
+    })
+    // await withSiteBuilder('siteName', async (builder) => {
+    //   await withMockApi(
+    //     [],
+    //     async ({ apiUrl }) => {
+    //       await callCli(['link'], getCLIOptions({ builder, apiUrl }))
+
+    //       expect(true)
+    //     },
+    //     true,
+    //   )
+    // })
+  })
 })
