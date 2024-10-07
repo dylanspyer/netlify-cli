@@ -48,6 +48,7 @@ const linkPrompt = async (command, options) => {
   ])
 
   let kind
+  console.log("link type", linkType)
   switch (linkType) {
     case GIT_REMOTE_PROMPT: {
       kind = 'gitRemote'
@@ -249,17 +250,21 @@ or run ${chalk.cyanBright('netlify sites:create')} to create a site.`)
 }
 
 export const link = async (options: OptionValues, command: BaseCommand) => {
+  // console.log(`options`, options)
+  // console.log('command', command.netlify)
   await command.authenticate()
 
   const {
     api,
     repositoryRoot,
-    site: { id: siteId },
+    // site: { id: siteId },
+    site,
     siteInfo,
     state,
   } = command.netlify
 
   let siteData = siteInfo
+  let siteId = site.id
 
   // Add .netlify to .gitignore file
   await ensureNetlifyIgnore(repositoryRoot)
@@ -271,8 +276,24 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
     return exit()
   }
 
+  // const sites = await listSites({ api, options: { filter: 'all' } })
+  // log('sites', sites)
+
+  log(siteData)
+  log("siteinfo", siteInfo)
+  // log(listSites({
+  //   api,
+  //   options: {
+  //     name: options.name,
+  //     filter: 'all',
+  //   },
+  // }))
+  
   if (!isEmpty(siteInfo)) {
     // If already linked to site. exit and prompt for unlink
+    log(`site: ${JSON.stringify(site)}`)
+    log(`site data: ${JSON.stringify(siteData)}`)
+    log(`site info: ${JSON.stringify(siteInfo)}`)
     log(`Site already linked to "${siteData.name}"`)
     log(`Admin url: ${siteData.admin_url}`)
     log()
@@ -322,10 +343,13 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
     if (results.length === 0) {
       error(new Error(`No sites found named ${options.name}`))
     }
-
+    //clear error messages
     console.log('results:', results)
+    log('this is a test')
+
     const matchingSiteData =
-      results.filter((site) => site.name && options.name && site.name === options.name) || results[0]
+      results.find((site: any) => site.name === options.name) || results[0]
+    //fall back to first site which is default
     state.set('siteId', matchingSiteData.id)
 
     log(`Linked to ${matchingSiteData.name}`)

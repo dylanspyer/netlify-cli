@@ -17,6 +17,7 @@ const MAX_PER_PAGE = 100
 export const listSites = async ({ api, options }) => {
   const { maxPages = MAX_PAGES, page = FIRST_PAGE, ...rest } = options
   const sites = await api.listSites({ page, per_page: MAX_PER_PAGE, ...rest })
+  console.log('sites', sites)
   // TODO: use pagination headers when js-client returns them
   if (sites.length === MAX_PER_PAGE && page + 1 <= maxPages) {
     return [...sites, ...(await listSites({ api, options: { page: page + 1, maxPages, ...rest } }))]
