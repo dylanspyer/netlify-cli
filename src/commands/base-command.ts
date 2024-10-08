@@ -597,6 +597,7 @@ export default class BaseCommand extends Command {
       ...apiUrlOpts,
     })
     const { buildDir, config, configPath, repositoryRoot, siteInfo } = cachedConfig
+
     let { env } = cachedConfig
     if (flags.offlineEnv) {
       env = {}

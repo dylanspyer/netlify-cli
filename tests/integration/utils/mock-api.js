@@ -80,8 +80,7 @@ export const withMockApi = async (routes, testHandler, silent = false) => {
 
 export const getEnvironmentVariables = ({ apiUrl }) => ({
   NETLIFY_AUTH_TOKEN: 'fake-token',
-  NETLIFY_SITE_ID: 'site_id',
-  SITE_NAME: 'site_name_hello',
+  NETLIFY_SITE_ID: 'site_id5',
   NETLIFY_API_URL: apiUrl,
 })
 

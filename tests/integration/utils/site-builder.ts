@@ -325,7 +325,7 @@ export async function withSiteBuilder<T>(
     builder = createSiteBuilder({ siteName: slugify(taskContext.task.name) })
     return await testHandler(builder)
   } finally {
-    if (builder) await builder.cleanup()
+    // if (builder) await builder.cleanup()
   }
 }
 

@@ -24,9 +24,11 @@ describe.concurrent('commands/recipes', () => {
 
       const childProcess = execa(cliPath, ['recipes', 'vscode'], {
         cwd: builder.directory,
+        stderr: 'inherit',
+        stdout: 'inherit',
       })
-      const settingsPath = resolve(builder.directory, '.vscode', 'settings.json')
 
+      const settingsPath = resolve(builder.directory, '.vscode', 'settings.json')
       handleQuestions(childProcess, [
         {
           question: `A new VS Code settings file will be created at ${settingsPath}`,

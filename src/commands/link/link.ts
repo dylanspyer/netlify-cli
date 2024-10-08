@@ -48,7 +48,7 @@ const linkPrompt = async (command, options) => {
   ])
 
   let kind
-  console.log("link type", linkType)
+  console.log('link type', linkType)
   switch (linkType) {
     case GIT_REMOTE_PROMPT: {
       kind = 'gitRemote'
@@ -280,7 +280,7 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
   // log('sites', sites)
 
   log(siteData)
-  log("siteinfo", siteInfo)
+  log('siteinfo', siteInfo)
   // log(listSites({
   //   api,
   //   options: {
@@ -288,7 +288,7 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
   //     filter: 'all',
   //   },
   // }))
-  
+
   if (!isEmpty(siteInfo)) {
     // If already linked to site. exit and prompt for unlink
     log(`site: ${JSON.stringify(site)}`)
@@ -347,8 +347,7 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
     console.log('results:', results)
     log('this is a test')
 
-    const matchingSiteData =
-      results.find((site: any) => site.name === options.name) || results[0]
+    const matchingSiteData = results.find((site: any) => site.name === options.name) || results[0]
     //fall back to first site which is default
     state.set('siteId', matchingSiteData.id)
 

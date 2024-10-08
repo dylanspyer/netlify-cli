@@ -10,6 +10,7 @@ import { Buffer } from 'buffer'
  */
 export const handleQuestions = (process, questions, prompts = []) => {
   let buffer = ''
+  console.log(process.stdout)
   process.stdout.on('data', (data) => {
     buffer = (buffer + data).replace(/\n/g, '')
     const index = questions.findIndex(
