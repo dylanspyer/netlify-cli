@@ -186,7 +186,7 @@ export const warn = (message = '') => {
 }
 
 /** Throws an error or logs it */
-export const error = (message: Error | string = '', options: { exit?: boolean } = {}) => {
+export const error = (message: unknown | Error | string = '', options: { exit?: boolean } = {}) => {
   const err =
     message instanceof Error
       ? message

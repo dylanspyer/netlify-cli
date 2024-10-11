@@ -15,8 +15,8 @@ import BaseCommand from '../base-command.js'
  * @param {import('../base-command.js').default} command
  * @param {import('commander').OptionValues} options
  */
-// @ts-expect-error TS(7006) FIXME: Parameter 'command' implicitly has an 'any' type.
-const linkPrompt = async (command, options) => {
+
+const linkPrompt = async (command: BaseCommand, options: OptionValues): Promise<undefined | SiteInfo> => {
   const { api, state } = command.netlify
 
   const SITE_NAME_PROMPT = 'Search by full or partial site name'
@@ -24,7 +24,7 @@ const linkPrompt = async (command, options) => {
   const SITE_ID_PROMPT = 'Enter a site ID'
 
   let GIT_REMOTE_PROMPT = 'Use the current git remote origin URL'
-  let site
+  let site: SiteInfo | undefined
   // Get git remote data if exists
   const repoData = await getRepoData({ workingDir: command.workingDir, remoteName: options.gitRemoteName })
 
@@ -48,7 +48,7 @@ const linkPrompt = async (command, options) => {
     },
   ])
 
-  let kind
+  let kind = ''
   switch (linkType) {
     case GIT_REMOTE_PROMPT: {
       kind = 'gitRemote'
@@ -124,11 +124,9 @@ Run ${chalk.cyanBright('git remote -v')} to see a list of your git remotes.`)
           options: { name: searchTerm, filter: 'all' },
         })
       } catch (error_) {
-        // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
-        if (error_.status === 404) {
+        if (error_ instanceof Error && 'status' in error_ && error_.status === 404) {
           error(`'${searchTerm}' not found`)
         } else {
-          // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
           error(error_)
         }
       }
@@ -166,11 +164,10 @@ or run ${chalk.cyanBright('netlify sites:create')} to create a site.`)
       log(`Fetching recently updated sites...`)
       log()
 
-      let sites
+      let sites: SiteInfo[] = []
       try {
         sites = await listSites({ api, options: { maxPages: 1, filter: 'all' } })
       } catch (error_) {
-        // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
         error(error_)
       }
 
@@ -184,7 +181,7 @@ or run ${chalk.cyanBright('netlify sites:create')} to create a site.`)
           name: 'selectedSite',
           message: 'Which site do you want to link?',
           paginated: true,
-          // @ts-expect-error TS(7006) FIXME: Parameter 'matchingSite' implicitly has an 'any' t... Remove this comment to see the full error message
+
           choices: sites.map((matchingSite) => ({ name: matchingSite.name, value: matchingSite })),
         },
       ])
@@ -207,41 +204,39 @@ or run ${chalk.cyanBright('netlify sites:create')} to create a site.`)
       try {
         site = await api.getSite({ siteId })
       } catch (error_) {
-        // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
-        if (error_.status === 404) {
+        if (error_ instanceof Error && 'status' in error_ && error_.status === 404) {
           error(new Error(`Site ID '${siteId}' not found`))
         } else {
-          // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
           error(error_)
         }
       }
       break
     }
     default:
-      return
+      return undefined
   }
 
-  if (!site) {
+  if (site) {
+    // Save site ID to config
+    state.set('siteId', site.id)
+
+    await track('sites_linked', {
+      siteId: site.id,
+      linkType: 'prompt',
+      kind,
+    })
+
+    // Log output
+    log()
+    log(chalk.greenBright.bold.underline(`Directory Linked`))
+    log()
+    log(`Admin url: ${chalk.magentaBright(site.admin_url)}`)
+    log(`Site url:  ${chalk.cyanBright(site.ssl_url || site.url)}`)
+    log()
+    log(`You can now run other \`netlify\` cli commands in this directory`)
+  } else {
     error(new Error(`No site found`))
   }
-
-  // Save site ID to config
-  state.set('siteId', site.id)
-
-  await track('sites_linked', {
-    siteId: site.id,
-    linkType: 'prompt',
-    kind,
-  })
-
-  // Log output
-  log()
-  log(chalk.greenBright.bold.underline(`Directory Linked`))
-  log()
-  log(`Admin url: ${chalk.magentaBright(site.admin_url)}`)
-  log(`Site url:  ${chalk.cyanBright(site.ssl_url || site.url)}`)
-  log()
-  log(`You can now run other \`netlify\` cli commands in this directory`)
 
   return site
 }
@@ -257,7 +252,7 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
     state,
   } = command.netlify
 
-  let siteData = siteInfo
+  let siteData: SiteInfo = siteInfo
 
   // Add .netlify to .gitignore file
   await ensureNetlifyIgnore(repositoryRoot)
@@ -279,11 +274,9 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
     try {
       siteData = await api.getSite({ site_id: options.id })
     } catch (error_) {
-      // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
-      if (error_.status === 404) {
+      if (error_ instanceof Error && 'status' in error_ && error_.status === 404) {
         error(new Error(`Site id ${options.id} not found`))
       } else {
-        // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
         error(error_)
       }
     }
@@ -308,11 +301,9 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
         },
       })
     } catch (error_) {
-      // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
-      if (error_.status === 404) {
+      if (error_ instanceof Error && 'status' in error_ && error_.status === 404) {
         error(new Error(`${options.name} not found`))
       } else {
-        // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
         error(error_)
       }
     }
@@ -333,7 +324,8 @@ export const link = async (options: OptionValues, command: BaseCommand) => {
       kind: 'byName',
     })
   } else {
-    siteData = await linkPrompt(command, options)
+    const linkedSiteData = await linkPrompt(command, options)
+    return linkedSiteData
   }
   return siteData
 }
